@@ -1,0 +1,55 @@
+local ToggleKey = Enum.KeyCode.C  -- Change this to your preferred toggle key
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+local isToggled = false
+
+-- Event listener for key presses
+game:GetService("UserInputService").InputBegan:Connect(function(input)
+    local focusedTextBox = game:GetService("UserInputService"):GetFocusedTextBox()
+    if not focusedTextBox then
+        if input.KeyCode == ToggleKey then
+            isToggled = not isToggled
+            if isToggled then
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "Notification",
+                    Text = "Script toggled ON",
+                    Icon = "",
+                    Duration = 1
+                })
+            else
+                game.StarterGui:SetCore("SendNotification", {
+                    Title = "Notification",
+                    Text = "Script toggled OFF",
+                    Icon = "",
+                    Duration = 1
+                })
+            end
+        end
+    end
+end)
+
+while wait() do
+    if isToggled then
+        local Gifts = Workspace.Gifts
+        local Structure = Workspace.Structure
+        local Spawn = Structure.SpawnLocation
+
+        for _, Time in pairs(Gifts:GetChildren()) do
+            if Time:IsA("BasePart") and Time.Parent then
+                local Distance = (Player.Character.HumanoidRootPart.Position - Time.Position).Magnitude
+                local Speed = Distance / 55.1853812095451
+                local Tween = TweenService:Create(Player.Character.HumanoidRootPart, TweenInfo.new(Speed, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {CFrame = Time.CFrame})
+                Tween:Play()
+                Tween.Completed:Wait()
+
+                local SafeDistance = (Player.Character.HumanoidRootPart.Position - Spawn.Position).Magnitude
+                local SafeSpeed = SafeDistance / 55
+                local SafeTween = TweenService:Create(Player.Character.HumanoidRootPart, TweenInfo.new(SafeSpeed, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {CFrame = Spawn.CFrame * CFrame.new(0, 2.5, 0)})
+                SafeTween:Play()
+            end
+        end
+    end
+end
